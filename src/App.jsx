@@ -1,66 +1,54 @@
-import { useState } from "react"
-import "./App.css"
-const api_key = "sk-proj-0ZCgHVf40vdGOwM8F6uwT3BlbkFJK8XgqrdAB4GSBTp5DToc"
+import React, { useState } from 'react';
+import './App.css'
 
 function App() {
-  const [text, setText] = useState("")
-  const [sentiment, setsentiment] = useState("")
+  const [input, setInput] = useState('');
+  const [result, setResult] = useState('');
 
-  async function callOpenAIAPI() {
-    const APIBody = {
-      "model": "gpt-3.5-turbo",
-      "messages": [
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    document.getElementById('textarea').value = ""
+    try {
+      const response = await fetch(
+        "https://api-inference.huggingface.co/models/meta-llama/Meta-Llama-3-8B-Instruct",
         {
-          "role": "system",
-          "content": "You will be provided with a tweet, and your task is to classify its sentiment as positive, neutral, or negative."
-        },
-        {
-          "role": "user",
-          "content": text
+          headers: { "Content-Type": "application/json", Authorization: "Bearer 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" },
+          method: "POST", 
+          body: JSON.stringify({ inputs: input }),
         }
-      ],
-      "temperature": 0.7,
-      "max_tokens": 64,
-      "top_p": 1
+      );
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const rawResponse = await response.text();
+      console.log('Raw response:', rawResponse);
+
+      const result = JSON.parse(rawResponse);
+      setResult(result[0].generated_text);
+    } catch (error) {
+      console.error('Error:', error);
+      setResult('Error: ' + error.message);
     }
-
-
-
-    console.log(sentiment)
-    await fetch("https://api.openai.com/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": "Bearer " + api_key
-      },
-      body: JSON.stringify(APIBody)
-    }).then((data)=>{
-      return data.json();
-    }).then((data) => {
-      console.log(data)
-    })
-
-    document.getElementById("textarea").value = ""
-  }
+  };
 
   return (
-    <>
-      <div className="App">
-        <h2 onClick={{}}>AI Playground</h2>
-        <textarea
-          id="textarea"
-          onChange={(e) => setText(e.target.value)}
-          placeholder="Text Here"
-          cols={50}
-          rows={10}
+    <div className='App'>
+      <h1>{input ? input : "AI Playground"}</h1>
+      <code>{result}</code>
+      <form onSubmit={handleSubmit}>
+        <textarea id="textarea"
+          cols={10}
+          rows={4}
+          type="text"
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
         />
-      </div>
-      <div>
-        <button onClick={callOpenAIAPI}>Send for Analysis</button>
-        <code style={{ display: text ? "block" : "none" }}>{text}</code>
-      </div>
-    </>
-  )
+        <div><button type="submit">Submit</button></div>
+      </form>
+    </div>
+  );
 }
 
-export default App
+export default App;
