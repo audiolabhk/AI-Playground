@@ -2,6 +2,8 @@
 
 <p>Welcome to AI Playground, an interactive web application that lets you experiment with state-of-the-art language
     models!</p>
+    
+<img style="width: 400px; corner-radius: 10px" src="https://github.com/audiolabhk/AI-Playground/assets/37352431/8e0de5af-9659-4283-84f9-0c7793b6599d" alt="AI playground screenshot"/>
 
 <h2>About</h2>
 
